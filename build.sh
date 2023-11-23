@@ -2,7 +2,7 @@
 set -e
 
 # Run Next.js build with passed arguments
-next build "$@"
+bun run build "$@"
 
 # Copy files only if not in a CI environment
 if [ -z "$CI" ]; then

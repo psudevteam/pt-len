@@ -1,9 +1,9 @@
-import { AuthLoginModule } from "@/modules";
+import { LandingModule } from "@/modules";
 import { NextPage } from "next";
 import { ReactElement } from "react";
 
-const Home: NextPage = (): ReactElement => {
-  return <AuthLoginModule />;
+const LandingPage: NextPage = (): ReactElement => {
+  return <LandingModule />;
 };
 
-export default Home;
+export default LandingPage;
