@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+
+model User {
+  id         String      @unique @default(uuid())
+  fullname   String
+  password   String
+  email      String      @unique
+  roles      Role        @relation(fields: [roleId], references: [id])
+  roleId     String
+  accounts      Account[]
+  sessions      Session[]
+  createdAt  DateTime    @default(now())
+  updateAt   DateTime    @default(now())
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Role {
+  id         String      @unique @default(uuid())
+  name       String
+  permission RolePermission[]
+  user       User[]
+  createdAt  DateTime         @default(now())
+  updateAt   DateTime
+}
+
+model RolePermission {
+  id           String     @unique @default(uuid())
+  role         Role       @relation(fields: [roleId], references: [id])
+  roleId       String
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  permissionId String
+  createdAt    DateTime   @default(now())
+  updateAt     DateTime
+}
+
+model Permission {
+  id        String           @unique @default(uuid())
+  name      String
+  roles     RolePermission[]
+  createdAt DateTime         @default(now())
+  updateAt  DateTime
+}
+
