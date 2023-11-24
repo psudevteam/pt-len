@@ -1,3 +1,4 @@
+import { TUser } from "@/entities";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import { compare } from "bcryptjs";
@@ -47,11 +48,20 @@ export const prismaAuthOptions: NextAuthOptions = {
           throw new Error("Invalid email or password");
         }
 
+        console.log(user?.roleId);
+
+        console.log(
+          await prisma.role.findFirst({ where: { id: user.roleId } }).then((x) => x?.name),
+        );
+
         return {
           id: user.id,
           email: user.email,
           fullname: user.fullname,
-          role: user.roleId,
+          role: {
+            id: await prisma.role.findFirst({ where: { id: user.roleId } }).then((x) => x?.id),
+            name: await prisma.role.findFirst({ where: { id: user.roleId } }).then((x) => x?.name),
+          },
         };
       },
     }),
@@ -63,18 +73,25 @@ export const prismaAuthOptions: NextAuthOptions = {
         user: {
           ...session.user,
           fullname: token.fullname,
-          role: token.role,
+          role: {
+            name: token?.role?.name,
+            id: token?.role?.id,
+          },
           id: token.id,
         },
       };
     },
+
     jwt: ({ token, user }) => {
       if (user) {
-        const u = user as unknown as any;
+        const u = user as TUser;
         return {
           ...token,
           fullname: u.fullname,
-          role: u.role,
+          role: {
+            name: u.role.name,
+            id: u.role.id,
+          },
           id: u.id,
         };
       }

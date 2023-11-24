@@ -13,7 +13,7 @@ const LandingTemplate: NextPage = (props: PropsWithChildren): ReactElement => {
         width={1980}
         height={1080}
       />
-      <div className="z-20 flex items-center justify-center p-6 w-full relative h-full">
+      <div className="z-20 flex items-center justify-center w-full relative h-full">
         {props.children}
       </div>
     </section>

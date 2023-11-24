@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { FC, ReactElement } from "react";
 import { TButton } from "./type";
+import Link from "next/link";
 
 export const Button: FC<TButton> = (props): ReactElement => {
   const { isLoading = false, variant = "primary", size = "md" } = props;
@@ -27,8 +28,18 @@ export const Button: FC<TButton> = (props): ReactElement => {
   );
 
   return (
-    <button data-testid="button" className={className} {...props}>
-      {isLoading ? "Loading..." : props.children}
-    </button>
+    <>
+      {props.href ? (
+        <Link href={props.href}>
+          <button data-testid="button" className={className} {...props}>
+            {isLoading ? "Loading..." : props.children}
+          </button>
+        </Link>
+      ) : (
+        <button data-testid="button" className={className} {...props}>
+          {isLoading ? "Loading..." : props.children}
+        </button>
+      )}
+    </>
   );
 };

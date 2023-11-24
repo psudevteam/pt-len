@@ -1,13 +1,27 @@
-import { withAuth } from "next-auth/middleware";
+import { getToken } from "next-auth/jwt";
+import { NextResponse } from "next/server";
 
-export default withAuth({
-  callbacks: {
-    authorized: ({ token }) => {
-      return !!token;
-    },
-  },
-});
+export async function middleware(req: any) {
+  const auth = req.nextUrl.clone();
+  auth.pathname = "/auth/login";
+  const afterAuth = req.nextUrl.clone();
+  afterAuth.pathname = "/dashboard";
 
-export const config = {
-  matcher: ["/dashboard/:path*"],
-};
+  if (req.nextUrl.pathname.startsWith("/dashboard")) {
+    const session = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === "production",
+    });
+    if (!session) return NextResponse.redirect(auth);
+  }
+
+  if (req.nextUrl.pathname.startsWith("/auth")) {
+    const session = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === "production",
+    });
+    if (session) return NextResponse.redirect(afterAuth);
+  }
+}

@@ -41,7 +41,7 @@ export const AuthLoginModule: FC = (): ReactElement => {
       if (response?.error) {
         setErrorMessage(response.error);
       } else {
-        router.push("/dashboard");
+        router.push("/dashboard?title=Dashboard");
       }
     } catch (error) {
       console.log(error);
@@ -55,7 +55,7 @@ export const AuthLoginModule: FC = (): ReactElement => {
       className="md:w-1/2 w-full border h-full gap-y-4 justify-center flex flex-col md:px-12 px-6 rounded-lg"
     >
       <div className="flex flex-col gap-y-2 mb-10">
-        <h1 className="text-4xl text-blue-600 font-medium">Masuk</h1>
+        <h1 className="text-4xl text-gray-700 font-medium">Masuk</h1>
         <p className="text-gray-400">Selamat datang kembali, silahkan masuk</p>
       </div>
       {errorMessage && (
