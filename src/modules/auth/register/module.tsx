@@ -25,6 +25,7 @@ export const AuthRegisterModule: FC = (): ReactElement => {
       fullname: "",
       email: "",
       password: "",
+      confirm_password: "",
     },
   });
 
