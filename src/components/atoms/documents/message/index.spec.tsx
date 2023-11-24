@@ -17,7 +17,7 @@ describe("Testing Message component", () => {
     expect(container.firstChild).toHaveClass("text-red-400");
 
     rerender(<Message status="success">Test Message</Message>);
-    expect(container.firstChild).toHaveClass("text-green-400");
+    expect(container.firstChild).toHaveClass("text-green-600");
 
     rerender(<Message status="warning">Test Message</Message>);
     expect(container.firstChild).toHaveClass("text-yellow-400");

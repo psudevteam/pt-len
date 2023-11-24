@@ -1,16 +1,20 @@
 "use client";
 import { Button, ControlledFieldCheckbox, ControlledFieldText } from "@/components";
-import { FC, ReactElement } from "react";
+import { FC, ReactElement, useState } from "react";
 import { useForm } from "react-hook-form";
 import { TVSLogin, VSLogin } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export const AuthLoginModule: FC = (): ReactElement => {
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const router = useRouter();
 
   const {
     control,
@@ -26,12 +30,23 @@ export const AuthLoginModule: FC = (): ReactElement => {
     },
   });
 
-  const onSubmit = handleSubmit((data) => {
-    signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
+  const onSubmit = handleSubmit(async (data) => {
+    setIsLoading(true);
+    try {
+      const response = await signIn("login", {
+        redirect: false,
+        email: data?.email,
+        password: data?.password,
+      });
+      if (response?.error) {
+        setErrorMessage(response.error);
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setIsLoading(false);
   });
 
   return (
@@ -43,6 +58,12 @@ export const AuthLoginModule: FC = (): ReactElement => {
         <h1 className="text-4xl text-blue-600 font-medium">Masuk</h1>
         <p className="text-gray-400">Selamat datang kembali, silahkan masuk</p>
       </div>
+      {errorMessage && (
+        <div className="flex flex-col gap-y-2 bg-red-50 p-4 rounded-lg border-red-500 border">
+          <p className="text-red-500">{errorMessage}</p>
+        </div>
+      )}
+
       <ControlledFieldText
         required
         size="sm"
@@ -51,7 +72,7 @@ export const AuthLoginModule: FC = (): ReactElement => {
         name="email"
         label="Email"
         placeholder="Masukkan Email"
-        status={errors.email ? "error" : isValid ? "success" : "none"}
+        status={errors.email ? "error" : "none"}
         message={errors.email?.message}
       />
       <ControlledFieldText
@@ -62,7 +83,7 @@ export const AuthLoginModule: FC = (): ReactElement => {
         name="password"
         label="Password"
         placeholder="Masukkan Password"
-        status={errors.password ? "error" : isValid ? "success" : "none"}
+        status={errors.password ? "error" : "none"}
         message={errors.password?.message}
       />
       <ControlledFieldCheckbox size="sm" control={control} name="remember" text="Remember Me" />
