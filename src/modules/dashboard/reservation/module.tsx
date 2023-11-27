@@ -94,7 +94,7 @@ export const DashboardReservationModule: FC<TReservation> = async ({ data }) => 
         accessorKey: "code",
       },
     ],
-    [],
+    [sessionData?.user?.role?.name],
   );
 
   const [search, setSearch] = useState("");
