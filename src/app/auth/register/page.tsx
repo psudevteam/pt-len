@@ -3,11 +3,7 @@ import { NextPage } from "next";
 import { ReactElement, Suspense } from "react";
 
 const AuthLoginPage: NextPage = (): ReactElement => {
-  return (
-    <Suspense fallback={<FormSkeleton />}>
-      <AuthRegisterModule />
-    </Suspense>
-  );
+  return <AuthRegisterModule />;
 };
 
 export default AuthLoginPage;

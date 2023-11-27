@@ -1,13 +1,17 @@
+import { prisma } from "@/libs";
 import { DashboardReservationModule } from "@/modules";
 import { NextPage } from "next";
-import { ReactElement, Suspense } from "react";
 
-const DashboardReservationPage: NextPage = (): ReactElement => {
-  return (
-    <Suspense fallback="Loading...">
-      <DashboardReservationModule />
-    </Suspense>
-  );
+const DashboardReservationPage: NextPage = async () => {
+  const data = await prisma.reservation.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      user: true,
+    },
+  });
+  return <DashboardReservationModule data={data} />;
 };
 
 export default DashboardReservationPage;

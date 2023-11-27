@@ -1,13 +1,9 @@
 import { DashboardModule } from "@/modules";
 import { NextPage } from "next";
-import { ReactElement, Suspense } from "react";
+import { ReactElement } from "react";
 
 const DashboardPage: NextPage = (): ReactElement => {
-  return (
-    <Suspense fallback="Loading...">
-      <DashboardModule />
-    </Suspense>
-  );
+  return <DashboardModule />;
 };
 
 export default DashboardPage;

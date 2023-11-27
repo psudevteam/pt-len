@@ -1,17 +1,55 @@
 "use client";
-import { DataTable } from "@/components";
-import { FC, useMemo } from "react";
-import { useReservation } from "./hook";
+import { DataTable, Button } from "@/components";
+import { ChangeEvent, ChangeEventHandler, FC, useEffect, useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Prisma } from "@prisma/client";
+import { FaCheck, FaPencilAlt, FaRegTrashAlt } from "react-icons/fa";
+import { deleteDataAction } from "./delete-data";
+import { completeDataAction } from "./complete-data";
+import { useSession } from "next-auth/react";
+import { searchDataAction } from "./search-data";
+import { useDebounce } from "./hook";
 
-export const DashboardReservationModule: FC = async () => {
-  const { data } = useReservation();
+type TReservation = { data: Prisma.ReservationGetPayload<{}>[] };
+
+export const DashboardReservationModule: FC<TReservation> = async ({ data }) => {
+  const { data: sessionData } = useSession();
   const column = useMemo<ColumnDef<Prisma.ReservationGetPayload<{}>>[]>(
     () => [
       {
+        header: "Aksi",
+        accessorKey: "id",
+        cell: ({ row }) => (
+          <div className="flex gap-x-2">
+            <Button
+              href={`/dashboard/reservasi/edit/${row.original.id}`}
+              size="sm"
+              variant="success"
+            >
+              <FaPencilAlt />
+            </Button>
+            {sessionData?.user?.role?.name?.toLowerCase() === "admin" && (
+              <Button
+                onClick={() => completeDataAction(row.original.id)}
+                size="sm"
+                variant="success"
+              >
+                <FaCheck />
+              </Button>
+            )}
+            <Button onClick={() => deleteDataAction(row.original.id)} size="sm" variant="error">
+              <FaRegTrashAlt />
+            </Button>
+          </div>
+        ),
+      },
+      {
         header: "Nama Perusahaan",
         accessorKey: "companyName",
+      },
+      {
+        header: "User",
+        accessorKey: "userName",
       },
       {
         header: "Tgl. Datang",
@@ -41,6 +79,7 @@ export const DashboardReservationModule: FC = async () => {
       {
         header: "Tgl. Reservasi",
         accessorKey: "reservationDate",
+        cell: ({ cell }) => cell.getValue<Date>().toLocaleDateString("id-ID"),
       },
       {
         header: "Dokumen",
@@ -58,6 +97,20 @@ export const DashboardReservationModule: FC = async () => {
     [],
   );
 
+  const [search, setSearch] = useState("");
+  const [debounceValue, setDebounceValue] = useState<string>("");
+
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>): void => {
+    setDebounceValue(e.target.value);
+  };
+
   const createLink = "/dashboard/reservasi/create?title=Tambah Data Reservasi";
-  return <DataTable createLink={createLink} columns={column} data={data || []} />;
+  return (
+    <section className="flex flex-col gap-y-4">
+      <Button href={createLink} size="sm" variant="cancel">
+        Tambah Data +
+      </Button>
+      <DataTable columns={column} data={data?.filter((x) => !x.isCompleted) || []} />
+    </section>
+  );
 };

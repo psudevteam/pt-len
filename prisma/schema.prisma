@@ -11,18 +11,18 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -30,29 +30,32 @@ model Account {
 }
 
 model Guest {
-  id              String  @id @default(uuid())
-  fullname        String?
-  companyName     String?
-  phoneNumber     String?
-  email           String?
-  guestTotal      Int?
-  reservationId   String
-  reservations    Reservation @relation(fields: [reservationId], references: [id])
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now())
+  id            String      @id @default(uuid())
+  fullname      String?
+  companyName   String?
+  phoneNumber   String?
+  email         String?
+  guestTotal    Int?
+  reservationId String @unique
+  reservations  Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now())
 }
 
 model WorkUnit {
-  id              String  @id @default(uuid())
-  name            String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now())
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Reservation {
-  id              String  @id @default(uuid())
+  id              String    @id @default(uuid())
   guestId         String?
-  guests          Guest[]
+  guests          Guest?
+  userId          String
+  userName        String?
+  user            User[]
   status          String?
   companyName     String?
   arrivalDate     DateTime?
@@ -66,21 +69,24 @@ model Reservation {
   guestStatus     String?
   checkInStatus   String?
   code            String?
+  isCompleted     Boolean   @default(false)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @default(now())
 }
 
 model User {
-  id         String      @unique @default(uuid())
-  fullname   String
-  password   String
-  email      String      @unique
-  roles      Role        @relation(fields: [roleId], references: [id])
-  roleId     String
-  accounts   Account[]
-  sessions   Session[]
-  createdAt  DateTime    @default(now())
-  updateAt   DateTime    @default(now())
+  id            String       @unique @default(uuid())
+  fullname      String
+  password      String
+  email         String       @unique
+  roles         Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId        String
+  reservations  Reservation? @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  reservationId String?      @unique
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime     @default(now())
+  updateAt      DateTime     @default(now())
 }
 
 model Session {
@@ -92,7 +98,7 @@ model Session {
 }
 
 model Role {
-  id         String      @unique @default(uuid())
+  id         String           @unique @default(uuid())
   name       String
   permission RolePermission[]
   user       User[]
@@ -102,9 +108,9 @@ model Role {
 
 model RolePermission {
   id           String     @unique @default(uuid())
-  role         Role       @relation(fields: [roleId], references: [id])
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   roleId       String
-  permission   Permission @relation(fields: [permissionId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
   permissionId String
   createdAt    DateTime   @default(now())
   updateAt     DateTime

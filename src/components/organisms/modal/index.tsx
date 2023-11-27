@@ -1,3 +1,4 @@
+"use client";
 import { FC, Fragment, ReactElement, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { TModal } from "./type";

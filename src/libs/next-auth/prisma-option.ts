@@ -50,10 +50,6 @@ export const prismaAuthOptions: NextAuthOptions = {
 
         console.log(user?.roleId);
 
-        console.log(
-          await prisma.role.findFirst({ where: { id: user.roleId } }).then((x) => x?.name),
-        );
-
         return {
           id: user.id,
           email: user.email,
